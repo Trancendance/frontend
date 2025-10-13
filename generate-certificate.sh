@@ -1,7 +1,7 @@
 #!/bin/bash
 # generate-certificate.sh - Genera certificats SSL signats per la CA local
 
-echo "🔐 Generant certificats SSL per frontend amb CA local..."
+echo "🔐 Generating SSL certificates for Frontend with local CA..."
 
 # Crear carpeta de certificats si no existeix
 mkdir -p certs
@@ -14,24 +14,24 @@ CA_CRT=""
 if [ -f "certs/rootCA.key" ] && [ -f "certs/rootCA.crt" ]; then
     CA_KEY="certs/rootCA.key"
     CA_CRT="certs/rootCA.crt"
-    echo "✅ CA trobada a: certs/"
+    echo "✅ CA found at: certs/"
 elif [ -f "../rootCA/rootCA.key" ] && [ -f "../rootCA/rootCA.crt" ]; then
     CA_KEY="../rootCA/rootCA.key"
     CA_CRT="../rootCA/rootCA.crt"
-    echo "✅ CA trobada a: ../rootCA/"
+    echo "✅ CA found at: ../rootCA/"
 else
-    echo "❌ ERROR: No es troben els fitxers de la CA arrel"
-    echo "   Executa primer: make generate-ca"
-    echo "   O assegura't que existeixin:"
+    echo "❌ ERROR: Can't find root CA files"
+    echo "   Execute first: make generate-ca"
+    echo "   Or make sure they exist:"
     echo "     - frontend/certs/rootCA.key i frontend/certs/rootCA.crt"
     echo "     - o ../rootCA/rootCA.key i ../rootCA/rootCA.crt"
     exit 1
 fi
 
-echo "[1/4] Generant clau privada del servidor..."
+echo "[1/4] Generating private key from server..."
 openssl genrsa -out certs/fd_transcendence.key 2048
 
-echo "[2/4] Generant sol·licitud de signatura de certificat (CSR)..."
+echo "[2/4] Generating certificate signature request (CSR)..."
 openssl req -new -key certs/fd_transcendence.key -out certs/fd_transcendence.csr \
     -subj "/C=ES/ST=Catalonia/L=Barcelona/O=42Barcelona/OU=Server/CN=localhost"
 
@@ -50,7 +50,7 @@ DNS.3 = host.docker.internal
 IP.1 = 127.0.0.1
 EOF
 
-echo "[4/4] Signant el certificat amb la CA arrel..."
+echo "[4/4] Signing certificate with root CA..."
 openssl x509 -req -in certs/fd_transcendence.csr \
     -CA "$CA_CRT" -CAkey "$CA_KEY" -CAcreateserial \
     -out certs/fd_transcendence.crt -days 365 -sha256 -extfile certs/fd_transcendence.ext
@@ -61,15 +61,15 @@ rm -f certs/rootCA.srl 2>/dev/null
 
 # Verificar que els certificats s'han generat correctament
 if [ -f "certs/fd_transcendence.key" ] && [ -f "certs/fd_transcendence.crt" ]; then
-    echo "✅ Certificats generats correctament a frontend/certs/"
+    echo "✅ Successfully generated certificates in backend/certs/"
     echo "   - fd_transcendence.key (Clau privada del servidor)"
     echo "   - fd_transcendence.crt (Certificat signat per la CA)"
     echo ""
-    echo "📋 Informació del certificat:"
+    echo "Certificate Information:"
     openssl x509 -in certs/fd_transcendence.crt -text -noout | grep -E "Subject:|Issuer:|Not Before|Not After|DNS:" | head -5
 else
-    echo "❌ Error generant els certificats"
+    echo "❌ Error generating certificates"
     exit 1
 fi
 
-echo "💡 Recorda instal·lar 'rootCA/rootCA.crt' al teu navegador per evitar warnings de seguretat"
+echo "💡 Remember to install 'rootCA/rootCA.crt' in your browser to avoid security warnings"
