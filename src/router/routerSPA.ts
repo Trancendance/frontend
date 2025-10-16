@@ -38,6 +38,18 @@ function getViews(path: string, routes: Route[]): Route[] {
     return out;
 }
 
+function routerGetLoader(route: Route) {
+    if (route.loader) {
+        route
+            .loader()
+            .then(() => console.log(`Loaded route: ${route.id}`))
+            .catch((err) =>
+                console.error(`Error loading route ${route.id}:`, err)
+            );
+        console.log(`Rendering route: ${route.id}`);
+    }
+}
+
 function mountViews(views: Route[], outlet = routerRoot) {
     let host = outlet();
     if (!host) throw new Error('Router outlet not found');
@@ -46,6 +58,7 @@ function mountViews(views: Route[], outlet = routerRoot) {
         const node = route.view();
         if (host?.getAttribute('data-route-id') !== route.id) {
             host.replaceChildren(node);
+            routerGetLoader(route);
             host.setAttribute('data-route-id', route.id);
         }
         const next = host.getElementsByTagName('router-outlet');
@@ -71,10 +84,17 @@ function navigate(path: string, replace = false) {
     else history.pushState({}, '', path);
 }
 
+function updateElementsCurrentAttribute(path: string) {
+    document.querySelectorAll('[data-router-current]').forEach((el) => {
+        el.setAttribute('current', path);
+    });
+}
+
 function renderAnchorLinks(url: URL, e: Event, routes: Route[]) {
     if (url.origin !== window.location.origin) return;
     e.preventDefault();
     navigate(url.pathname);
+    updateElementsCurrentAttribute(url.pathname);
     render(routes);
 }
 export function startRouter(routes: Route[]) {
@@ -93,4 +113,5 @@ export function startRouter(routes: Route[]) {
 
     window.addEventListener('popstate', () => render(routes));
     render(routes);
+    updateElementsCurrentAttribute(window.location.pathname);
 }

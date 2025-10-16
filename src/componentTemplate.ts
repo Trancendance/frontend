@@ -56,7 +56,7 @@ export class CustomElementTemplate extends HTMLElement {
         name: string,
         oldValue: string | null,
         newValue: string | null
-    ): void {
+    ) {
         if (oldValue === newValue) return;
         console.log(
             `${this._name} - Attribute ${name} has changed from ${oldValue} to ${newValue}`
@@ -91,16 +91,16 @@ export class ExampleElement extends CustomElementTemplate {
 	`;
 
     // optional: extend base handling
-    attributeChangedCallback(
-        name: string,
-        oldValue: string | null,
-        newValue: string | null
-    ): void {
+    attributeChangedCallback: AttributeCallback<string> = (
+        name,
+        oldValue,
+        newValue
+    ) => {
         super.attributeChangedCallback(name, oldValue, newValue);
         if (name === 'example-attribute') {
             console.log(`New value: ${newValue}`);
             // If attribute impacts UI, re-render or patch specific parts here
             // this.render();
         }
-    }
+    };
 }

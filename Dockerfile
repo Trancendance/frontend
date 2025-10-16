@@ -20,4 +20,4 @@ COPY certs/fd_transcendence.crt /usr/src/app/certs/fd_transcendence.crt
 EXPOSE 8081
 
 # Servir el frontend
-CMD ["http-server", "./src/", "-p", "8081", "-S", "-C", "certs/fd_transcendence.crt", "-K", "certs/fd_transcendence.key"]
+CMD ["http-server", "./dist", "-p", "8081", "-S", "-C", "certs/fd_transcendence.crt", "-K", "certs/fd_transcendence.key"]

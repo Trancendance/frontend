@@ -1,7 +1,30 @@
 // src/ts/router.ts
 import { Route } from '../router/routerSPA';
 import { RouterOutlet } from '../router/RouterOutlet';
-import { HomeView, ModuleView, SubRouteView } from '../views/home';
+import { HomeView } from '../views/Home';
+import { AddPlayerView, PlayersView } from '../views/Players';
+import { APIRequest } from '@/router/API';
+
+const BASE_URL = 'https://localhost:3000/api';
+
+async function getPlayerData() {
+    try {
+        const response = await fetch(BASE_URL, {
+            method: 'GET',
+            mode: 'cors',
+            credentials: 'omit',
+        });
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        const data = await response.json();
+        console.log('Player data loaded:', data);
+        return data;
+    } catch (error) {
+        console.error('Error fetching player data:', error);
+        throw error;
+    }
+}
 
 customElements.define('router-outlet', RouterOutlet);
 export const routes: Route[] = [
@@ -11,29 +34,22 @@ export const routes: Route[] = [
         view: HomeView,
     },
     {
-        path: 'module',
-        id: 'module',
-        view: ModuleView,
+        path: 'players',
+        id: 'players',
+        view: PlayersView,
+        loader: getPlayerData,
         children: [
             {
-                path: 'subroute',
-                id: 'subroute',
-                view: SubRouteView,
-            },
-            {
-                path: 'subroute2',
-                id: 'subroute2',
-                view: () => {
-                    const el = document.createElement('div');
-                    el.innerHTML = /*html*/ `
-                        <h1>SubRoute 2</h1>
-                        <a data-link href="/" class="text-blue-600 hover:underline">Go Home</a>
-                        <a data-link href="/module" class="text-blue-600 hover:underline">Go to Module</a>
-                        <a data-link href="/module/subroute" class="text-blue-600 hover:underline">Go to SubRoute</a>
-                    `;
-                    return el;
-                },
+                path: 'add',
+                id: 'add',
+                view: AddPlayerView,
             },
         ],
     },
+];
+
+export const navigationLinks = [
+    { href: '/', label: 'Home' },
+    { href: '/players', label: 'Player Management' },
+    { href: '/players/add', label: 'Add Player' },
 ];

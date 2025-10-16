@@ -11,7 +11,7 @@ customElements.define('navigation-menu', NavigationMenu);
 const el = document.querySelector('#app');
 if (el) {
     el.innerHTML = /*html*/ `<base-layout>
-			<navigation-menu slot="nav"></navigation-menu>
+			<navigation-menu slot="nav" current="" data-router-current></navigation-menu>
 			<router-root class="w-full"></router-root>
 		</base-layout>`;
 }
