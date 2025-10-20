@@ -38,15 +38,21 @@ function getViews(path: string, routes: Route[]): Route[] {
     return out;
 }
 
-function routerGetLoader(route: Route) {
+function routerGetLoader(route: Route, host: Element) {
     if (route.loader) {
         route
             .loader()
-            .then(() => console.log(`Loaded route: ${route.id}`))
+            .then(() => {
+                console.log(`Loaded route: ${route.id}`);
+                host.querySelectorAll('[data-loader]').forEach((el) => {
+                    const anyEl = el as any;
+                    anyEl.players = anyEl.players ?? [];
+                });
+                console.log(`Rendering route: ${route.id}`);
+            })
             .catch((err) =>
                 console.error(`Error loading route ${route.id}:`, err)
             );
-        console.log(`Rendering route: ${route.id}`);
     }
 }
 
@@ -58,7 +64,7 @@ function mountViews(views: Route[], outlet = routerRoot) {
         const node = route.view();
         if (host?.getAttribute('data-route-id') !== route.id) {
             host.replaceChildren(node);
-            routerGetLoader(route);
+            routerGetLoader(route, host);
             host.setAttribute('data-route-id', route.id);
         }
         const next = host.getElementsByTagName('router-outlet');

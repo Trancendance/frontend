@@ -1,10 +1,13 @@
 import { APIRequest } from '../router/API';
+import { PlayersTable } from '../components/PlayersTable';
 
+customElements.define('players-table', PlayersTable);
 export const PlayersView = () => {
     const el = document.createElement('div');
     el.innerHTML = /*html*/ `
 		<div class="grow">
 			<h1>Gestión de Jugadores</h1>
+            <players-table data-loader></players-table>
 			<a data-link href="/" class="text-blue-600 hover:underline">Go back home</a>
 			<a data-link href="/players/add" class="text-blue-600 hover:underline">Add player</a>
 		</div>
