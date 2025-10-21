@@ -11,10 +11,16 @@ WORKDIR /usr/src/app
 # Copiar archivos estáticos del frontend
 COPY . .
 
-RUN mkdir -p /certs
+RUN ls -la
+RUN npm install
 
-COPY certs/fd_transcendence.key /usr/src/app/certs/fd_transcendence.key
-COPY certs/fd_transcendence.crt /usr/src/app/certs/fd_transcendence.crt
+# RUN mkdir -p /certs
+
+# COPY certs/fd_transcendence.key /usr/src/app/certs/fd_transcendence.key
+# COPY certs/fd_transcendence.crt /usr/src/app/certs/fd_transcendence.crt
+
+
+RUN npm run build
 
 # Exponer el puerto
 EXPOSE 8081

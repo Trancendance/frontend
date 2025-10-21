@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "clean": "rm -rf dist && mkdir -p dist/assets",
+    "clean": "rm -rf dist && mkdir -p dist/assets && rm package-lock.json",
     "typecheck": "tsc --noEmit",
     "build:css": "npx tailwindcss -i ./src/styles/input.css -o ./dist/assets/styles.css --minify",
     "build:js": "esbuild src/ts/main.ts --bundle --outfile=dist/assets/main.js --format=esm --sourcemap",
