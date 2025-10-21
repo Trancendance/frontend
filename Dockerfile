@@ -11,14 +11,7 @@ WORKDIR /usr/src/app
 # Copiar archivos estáticos del frontend
 COPY . .
 
-RUN ls -la
 RUN npm install
-
-# RUN mkdir -p /certs
-
-# COPY certs/fd_transcendence.key /usr/src/app/certs/fd_transcendence.key
-# COPY certs/fd_transcendence.crt /usr/src/app/certs/fd_transcendence.crt
-
 
 RUN npm run build
 
