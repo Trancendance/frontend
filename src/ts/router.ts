@@ -4,6 +4,7 @@ import { RouterOutlet } from '../router/RouterOutlet';
 import { HomeView } from '../views/Home';
 import { AddPlayerView, PlayersView } from '../views/Players';
 import { playersMockData } from '../API_MOCKS/Players';
+import { LoginView } from '../views/Login';
 
 async function getPlayerData(): Promise<typeof playersMockData> {
     console.log('Loading player data (mock)...');
@@ -36,6 +37,11 @@ export const routes: Route[] = [
                 view: AddPlayerView,
             },
         ],
+    },
+    {
+        path: 'login',
+        id: 'login',
+        view: LoginView,
     },
 ];
 

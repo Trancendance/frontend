@@ -38,6 +38,7 @@ export const AddPlayerView = () => {
 			${getInput('Nombre de usuario', 'first_name', 'text')}
 			${getInput('Apellido', 'last_name', 'text')}
 			${getInput('Correo electrónico', 'email', 'email')}
+            ${getInput('Imagen', 'image_path', 'text')}
 			<button type="submit" class="bg-blue-500 text-white p-2 rounded hover:bg-blue-600">Add Player</button>
 		</form>
 		<a data-link href="/players" class="text-blue-600 hover:underline">Go back to player management</a>

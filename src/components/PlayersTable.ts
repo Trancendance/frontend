@@ -69,7 +69,6 @@ export class PlayersTable extends CustomElementTemplate {
 			</tbody>
 		</table>
 	`;
-        // console.log('innerHTML updated in PlayersTable:', this._innerHTML);
         super.render();
     }
 }
