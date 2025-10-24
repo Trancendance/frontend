@@ -1,19 +1,12 @@
 import { CustomElementTemplate } from '../componentTemplate.js';
-
-interface Player {
-    player_id: number;
-    alias: string;
-    first_name: string;
-    last_name: string;
-    email: string;
-}
+import { getPlayers } from '@/ts/types.js';
 
 export class tableRow extends CustomElementTemplate {
     static get observedAttributes() {
         const base = (super.observedAttributes ?? []) as string[];
         return [...base, 'data', 'is-header'] as const;
     }
-    protected _name = 'table-row';
+
     protected _innerHTML = this.innerHTMLGetter();
 
     innerHTMLGetter() {
@@ -27,54 +20,16 @@ export class tableRow extends CustomElementTemplate {
 
 customElements.define('table-row', tableRow);
 
-function getPlayersRows(players: Player[]): string {
-    return players
-        .map(
-            ({ player_id, alias, first_name, last_name, email }) => /*html*/ `
-				<tr class="bg-white border border-gray-300 md:border-none block md:table-row">
-					<table-row data="${player_id}"></table-row>
-					<table-row data="${alias}"></table-row>
-					<table-row data="${first_name}"></table-row>
-					<table-row data="${last_name}"></table-row>
-					<table-row data="${email}"></table-row>
-				</tr>
-		`
-        )
-        .join('');
-}
-
 export class PlayersTable extends CustomElementTemplate {
-    static get observedAttributes() {
-        const base = (super.observedAttributes ?? []) as string[];
-        return [...base] as const;
-    }
-    protected _players: Player[] = [];
-    set players(value: Player[]) {
-        this._players = value;
+    protected _loaderData: getPlayers = { data: [] };
+
+    set loaderData(value: getPlayers) {
+        this._loaderData = value;
         this.render();
     }
-    get players() {
-        return this._players;
-    }
-    protected _name = 'players-table';
+
     protected _innerHTML = /*html*/ `
-		<table class="min-w-full border-collapse block md:table">
-			<thead class="block md:table-header-group">
-				<tr class="border border-gray-300 md:border-none block md:table-row absolute -top-full md:top-auto -left-full md:left-auto md:relative">
-					<table-row data="Alias" is-header></table-row>
-					<table-row data="First Name" is-header></table-row>
-					<table-row data="Last Name" is-header></table-row>
-					<table-row data="Email" is-header></table-row>
-				</tr>
-			</thead>
-			<tbody class="block md:table-row-group">
-				${
-                    this.players.length === 0
-                        ? '<tr><td colspan="5" class="p-2 text-gray-600">No players found</td></tr>'
-                        : getPlayersRows(this.players)
-                }
-			</tbody>
-		</table>
+        <p>Loading players...</p>
 	`;
 
     render() {
@@ -82,21 +37,39 @@ export class PlayersTable extends CustomElementTemplate {
 		<table class="min-w-full border-collapse block md:table">
 			<thead class="block md:table-header-group">
 				<tr class="border border-gray-300 md:border-none block md:table-row absolute -top-full md:top-auto -left-full md:left-auto md:relative">
-					<table-row data="Alias" is-header></table-row>
-					<table-row data="First Name" is-header></table-row>
-					<table-row data="Last Name" is-header></table-row>
-					<table-row data="Email" is-header></table-row>
-				</tr>
+                <th class="bg-gray-200 p-2 text-gray-600 font-bold md:border md:border-gray-300 text-left block md:table-cell">Alias</th>
+                <th class="bg-gray-200 p-2 text-gray-600 font-bold md:border md:border-gray-300 text-left block md:table-cell">First Name</th>
+                <th class="bg-gray-200 p-2 text-gray-600 font-bold md:border md:border-gray-300 text-left block md:table-cell">Last Name</th>
+                <th class="bg-gray-200 p-2 text-gray-600 font-bold md:border md:border-gray-300 text-left block md:table-cell">Email</th>
+                </tr>
 			</thead>
 			<tbody class="block md:table-row-group">
 				${
-                    this.players.length === 0
+                    this._loaderData.data.length === 0
                         ? '<tr><td colspan="5" class="p-2 text-gray-600">No players found</td></tr>'
-                        : getPlayersRows(this.players)
+                        : this._loaderData.data
+                              .map(
+                                  ({
+                                      player_id,
+                                      alias,
+                                      first_name,
+                                      last_name,
+                                      email,
+                                  }) => /*html*/ `
+                                        <tr data-row="${player_id}" class="bg-white border border-gray-300 md:border-none block md:table-row">
+                                            <td> ${alias} </td>
+                                            <td> ${first_name} </td>
+                                            <td> ${last_name} </td>
+                                            <td> ${email} </td>
+                                        </tr>
+		                            `
+                              )
+                              .join('')
                 }
 			</tbody>
 		</table>
 	`;
+        // console.log('innerHTML updated in PlayersTable:', this._innerHTML);
         super.render();
     }
 }

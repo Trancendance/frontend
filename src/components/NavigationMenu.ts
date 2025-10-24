@@ -6,7 +6,7 @@ export class NavigationLink extends CustomElementTemplate {
         const base = (super.observedAttributes ?? []) as string[];
         return [...base, 'href', 'label', 'active'] as const;
     }
-    protected _name = 'navigation-link';
+
     protected _innerHTML = this.innerHtmlGetter();
 
     classGetter() {
@@ -18,7 +18,8 @@ export class NavigationLink extends CustomElementTemplate {
         oldValue: string | null,
         newValue: string | null
     ) {
-        if (oldValue === newValue) return;
+        // if (oldValue === newValue) return;
+        console.log('not executed');
         if (name === 'href' || name === 'label') this.render();
         if (name === 'active') {
             const root = this.shadowRoot ?? this;
@@ -49,7 +50,6 @@ export class NavigationMenu extends CustomElementTemplate {
         return [...base, 'current'] as const;
     }
 
-    protected _name = 'navigation-menu';
     protected _innerHTML = /*html*/ `<nav>
                 <ul class="flex gap-4">
                     ${navigationLinks

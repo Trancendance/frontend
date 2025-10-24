@@ -10,7 +10,7 @@ export class CustomElementTemplate extends HTMLElement {
         return [] as const;
     }
 
-    protected _name = 'shadow-element';
+    protected _name = this.constructor.name;
     protected _innerHTML = '';
 
     #root: ShadowRoot;

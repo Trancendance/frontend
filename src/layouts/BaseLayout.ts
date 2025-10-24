@@ -1,10 +1,6 @@
 import { CustomElementTemplate } from '../componentTemplate.js';
 
 export class BaseLayout extends CustomElementTemplate {
-    static get observedAttributes(): readonly string[] {
-        return [...super.observedAttributes] as const;
-    }
-    protected _name = 'base-layout';
     protected _innerHTML = /*html*/ `
 		<div id="main-wrapper" class="min-h-screen bg-gray-50">
 			<header class="border-b bg-white p-4 shadow-sm flex justify-between items-center">
@@ -17,5 +13,3 @@ export class BaseLayout extends CustomElementTemplate {
 		</div>
 	`;
 }
-
-// customElements.define('base-layout', BaseLayout);

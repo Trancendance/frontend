@@ -1,45 +1,45 @@
 {
-  "name": "frontend",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "clean": "rm -rf dist && mkdir -p dist/assets && rm package-lock.json",
-    "typecheck": "tsc --noEmit",
-    "build:css": "npx tailwindcss -i ./src/styles/input.css -o ./dist/assets/styles.css --minify",
-    "build:js": "esbuild src/ts/main.ts --bundle --outfile=dist/assets/main.js --format=esm --sourcemap",
-    "copy:public": "cp -r public/* dist/",
-    "build": "npm run clean && npm run typecheck && npm run build:css && npm run build:js && npm run copy:public",
-    "dev:css": "npx tailwindcss -i ./src/styles/input.css -o ./dist/assets/styles.css --watch",
-    "dev:js": "esbuild src/ts/main.ts --bundle --outfile=dist/assets/main.js --format=esm --sourcemap --watch",
-    "dev:serve": "vite preview --strictPort --port 5173 --outDir dist",
-    "dev": "npm-run-all --parallel dev:css dev:js dev:serve",
-    "format": "prettier -w .",
-    "lint": "eslint ."
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "type": "commonjs",
-  "devDependencies": {
-    "@tailwindcss/forms": "^0.5.10",
-    "@tailwindcss/typography": "^0.5.19",
-    "@types/estree": "^1.0.8",
-    "@types/json-schema": "^7.0.15",
-    "@typescript-eslint/eslint-plugin": "^8.46.0",
-    "@typescript-eslint/parser": "^8.46.0",
-    "esbuild": "^0.25.10",
-    "eslint": "^9.37.0",
-    "npm-run-all": "^4.1.5",
-    "prettier": "^3.6.2",
-    "prettier-plugin-tailwindcss": "^0.6.14",
-    "tailwindcss": "^4.1.14",
-    "tailwindcss-animate": "^1.0.7",
-    "typescript": "^5.9.3",
-    "vite": "^7.1.9"
-  },
-  "dependencies": {
-    "@tailwindcss/cli": "^4.1.14"
-  }
+    "name": "frontend",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "clean": "rm -rf dist && mkdir -p dist/assets",
+        "typecheck": "tsc --noEmit",
+        "build:css": "npx tailwindcss -i ./src/styles/input.css -o ./dist/assets/styles.css --minify",
+        "build:js": "esbuild src/ts/main.ts --bundle --outfile=dist/assets/main.js --format=esm --sourcemap",
+        "copy:public": "cp -r public/* dist/",
+        "build": "npm run typecheck && npm run build:css && npm run build:js && npm run copy:public",
+        "dev:css": "npx tailwindcss -i ./src/styles/input.css -o ./dist/assets/styles.css --watch",
+        "dev:js": "esbuild src/ts/main.ts --bundle --outfile=dist/assets/main.js --format=esm --sourcemap --watch",
+        "dev:serve": "vite preview --strictPort --port 5173 --outDir dist",
+        "dev": "npm-run-all --parallel dev:css dev:js dev:serve",
+        "format": "prettier -w .",
+        "lint": "eslint ."
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "type": "commonjs",
+    "devDependencies": {
+        "@tailwindcss/forms": "^0.5.10",
+        "@tailwindcss/typography": "^0.5.19",
+        "@types/estree": "^1.0.8",
+        "@types/json-schema": "^7.0.15",
+        "@typescript-eslint/eslint-plugin": "^8.46.0",
+        "@typescript-eslint/parser": "^8.46.0",
+        "esbuild": "^0.25.10",
+        "eslint": "^9.37.0",
+        "npm-run-all": "^4.1.5",
+        "prettier": "^3.6.2",
+        "prettier-plugin-tailwindcss": "^0.6.14",
+        "tailwindcss": "^4.1.14",
+        "tailwindcss-animate": "^1.0.7",
+        "typescript": "^5.9.3",
+        "vite": "^7.1.9"
+    },
+    "dependencies": {
+        "@tailwindcss/cli": "^4.1.14"
+    }
 }

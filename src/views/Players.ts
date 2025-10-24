@@ -50,9 +50,12 @@ export const AddPlayerView = () => {
             const form = event.target as HTMLFormElement;
             const formData = new FormData(form);
             const playerData = Object.fromEntries(formData.entries());
-            console.log('Player Data:', playerData);
             if (form.checkValidity()) {
-                APIRequest('https://localhost:3000/api', 'POST', playerData)
+                APIRequest(
+                    'https://localhost:3000/user/register',
+                    'POST',
+                    playerData
+                )
                     .then((response) => {
                         console.log('Player added:', response);
                         form.reset();

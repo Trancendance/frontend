@@ -11,9 +11,8 @@ WORKDIR /usr/src/app
 # Copiar archivos estáticos del frontend
 COPY . .
 
-RUN npm install
-
-RUN npm run build
+# Instalar dependencias y construir la aplicación
+RUN npm install && npm run build
 
 # Exponer el puerto
 EXPOSE 8081

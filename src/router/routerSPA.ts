@@ -6,7 +6,7 @@ export interface Route {
     path: string;
     view: View;
     id: string;
-    loader?: () => Promise<void>;
+    loader?: () => Promise<any>;
     errorView?: View;
     children?: Route[];
 }
@@ -42,13 +42,12 @@ function routerGetLoader(route: Route, host: Element) {
     if (route.loader) {
         route
             .loader()
-            .then(() => {
-                console.log(`Loaded route: ${route.id}`);
+            .then((res) => {
+                console.log('Loader response:', res);
                 host.querySelectorAll('[data-loader]').forEach((el) => {
                     const anyEl = el as any;
-                    anyEl.players = anyEl.players ?? [];
+                    anyEl.loaderData = res;
                 });
-                console.log(`Rendering route: ${route.id}`);
             })
             .catch((err) =>
                 console.error(`Error loading route ${route.id}:`, err)
