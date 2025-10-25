@@ -48,5 +48,4 @@ export const routes: Route[] = [
 export const navigationLinks = [
     { href: '/', label: 'Home' },
     { href: '/players', label: 'Player Management' },
-    { href: '/players/add', label: 'Add Player' },
 ];

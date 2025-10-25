@@ -1,21 +1,20 @@
 export const LoginView = () => {
     const el = document.createElement('div');
     el.innerHTML = /*html*/ `
-	<div class="w-full max-w-sm mx-auto h-full flex flex-col">
-		<div class="w-1/2 mx-auto mb-4 bg-amber-300">
-			<div class="w-full h-0 pb-full relative">
-				.
-			</div>
-		</div>
-		<div>
-			<h1>Login</h1>
+		
+			<div class="mb-6 ">
+			<h2 class="mt-10 text-2xl/9 font-bold tracking-tight mb-6">Sign in to your account</h2>
 			<form id="login-form" class="flex flex-col gap-4">
-				<label for="email">Email</label>
-				<input type="email" id="email" name="email" required class="border p-2 rounded" />
+				<label for="email" class="block text-sm/6 font-medium text-gray-900">Email</label>
+				<input type="email" id="email" name="email" required class="block w-full rounded-md bg-white/5 px-3 py-1.5 text-base  outline-1 -outline-offset-1 outline-black/10 placeholder:text-gray-500 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-500 sm:text-sm/6"  />
 				<button type="submit" class="bg-blue-500 text-white p-2 rounded hover:bg-blue-600">Login</button>
 			</form>
+			 <p class="mt-10 text-center text-sm/6 text-gray-400">
+				Don't have an account?
+      			<a href="#" class="font-semibold text-indigo-400 hover:text-indigo-300">Sign up</a>
+   			 </p>
+			
 		</div>
-	</div>
 `;
 
     el.querySelector('#login-form')?.addEventListener('submit', (event) => {

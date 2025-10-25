@@ -7,7 +7,7 @@ export class BaseLayout extends CustomElementTemplate {
 				<a data-link href="/" class="text-lg font-bold">MyAppShadow</a>
 			 	<slot name="nav"></slot>
 			</header>
-			<main id="main-content" class="mx-auto flex gap-4 lg:flex-row flex-col p-4">
+			<main id="main-content" class="mx-auto flex gap-4 lg:flex-row flex-col p-4 h-full">
 				<slot class="grow"></slot>
 			</main>
 		</div>
