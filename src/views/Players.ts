@@ -2,6 +2,7 @@ import { APIRequest } from '../router/API';
 import { PlayersTable } from '../components/PlayersTable';
 
 customElements.define('players-table', PlayersTable);
+
 export const PlayersView = () => {
     const el = document.createElement('div');
     el.innerHTML = /*html*/ `
@@ -29,46 +30,34 @@ export const getInput = (
 	`;
 };
 
+const addPlayerForm = {
+    fields: [
+        { label: 'Alias', for: 'alias' },
+        { label: 'Nombre de usuario', for: 'first_name' },
+        { label: 'Apellido', for: 'last_name' },
+        { label: 'Correo electrónico', for: 'email' },
+        { label: 'Imagen', for: 'image_path', required: false },
+    ],
+    buttonLabel: 'Add Player',
+    onSubmit: (data: Record<string, FormDataEntryValue>) => {
+        APIRequest('https://localhost:3000/user/register', 'POST', data)
+            .then(response => {
+                console.log('Player added:', response);
+            })
+            .catch(error => {
+                console.error('Error adding player:', error);
+            });
+    },
+};
+
 export const AddPlayerView = () => {
     const el = document.createElement('div');
+    const formComponent = document.createElement('app-form') as any;
+    formComponent.definitions = addPlayerForm;
+
     el.innerHTML = /*html*/ `
-		<p class="text-lg font-bold">Add a new player</p>
-		<form id="add-player-form" class="flex flex-col gap-4">
-			${getInput('Alias', 'alias', 'text')}
-			${getInput('Nombre de usuario', 'first_name', 'text')}
-			${getInput('Apellido', 'last_name', 'text')}
-			${getInput('Correo electrónico', 'email', 'email')}
-            ${getInput('Imagen', 'image_path', 'text')}
-			<button type="submit" class="bg-blue-500 text-white p-2 rounded hover:bg-blue-600">Add Player</button>
-		</form>
-		<a data-link href="/players" class="text-blue-600 hover:underline">Go back to player management</a>
-	`;
-
-    el.querySelector('#add-player-form')?.addEventListener(
-        'submit',
-        (event) => {
-            event.preventDefault();
-            const form = event.target as HTMLFormElement;
-            const formData = new FormData(form);
-            const playerData = Object.fromEntries(formData.entries());
-            if (form.checkValidity()) {
-                APIRequest(
-                    'https://localhost:3000/user/register',
-                    'POST',
-                    playerData
-                )
-                    .then((response) => {
-                        console.log('Player added:', response);
-                        form.reset();
-                    })
-                    .catch((error) => {
-                        console.error('Error adding player:', error);
-                    });
-            } else {
-                alert('Please fill in all required fields.');
-            }
-        }
-    );
-
+        <p class="text-lg font-bold">Add a new player</p>
+    `;
+    el.appendChild(formComponent);
     return el;
 };

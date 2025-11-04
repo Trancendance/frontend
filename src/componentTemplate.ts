@@ -5,7 +5,6 @@ export type AttributeCallback<T extends string> = (
 ) => void;
 
 export class CustomElementTemplate extends HTMLElement {
-    // 1) Must be static
     static get observedAttributes(): readonly string[] {
         return [] as const;
     }
@@ -26,7 +25,7 @@ export class CustomElementTemplate extends HTMLElement {
                 new CustomEvent('link-click', {
                     detail: { href: (a as HTMLAnchorElement).href },
                     bubbles: true,
-                    composed: true, // <-- escapes the shadow boundary
+                    composed: true,
                 })
             );
         });
@@ -62,6 +61,21 @@ export class CustomElementTemplate extends HTMLElement {
             `${this._name} - Attribute ${name} has changed from ${oldValue} to ${newValue}`
         );
     }
+
+    isUnique(): boolean {
+        const existingElement = document.querySelector(
+            this.tagName.toLowerCase()
+        );
+        if (existingElement && existingElement !== this) {
+            console.warn(
+                'Only one instance of',
+                this.tagName.toLowerCase(),
+                'is allowed.'
+            );
+            return false;
+        }
+        return true;
+    }
 }
 
 // ---- Subclass example ----
@@ -90,7 +104,6 @@ export class ExampleElement extends CustomElementTemplate {
 		</div>
 	`;
 
-    // optional: extend base handling
     attributeChangedCallback: AttributeCallback<string> = (
         name,
         oldValue,
@@ -99,8 +112,6 @@ export class ExampleElement extends CustomElementTemplate {
         super.attributeChangedCallback(name, oldValue, newValue);
         if (name === 'example-attribute') {
             console.log(`New value: ${newValue}`);
-            // If attribute impacts UI, re-render or patch specific parts here
-            // this.render();
         }
     };
 }

@@ -1,34 +1,38 @@
 import { CustomElementTemplate } from '../componentTemplate.js';
+import { replaceNode } from '../Utils/DOMUtils.js';
+import { AppButton } from '../components/Button.js';
 
 export class PageModal extends CustomElementTemplate {
     static get observedAttributes() {
-        const base = (super.observedAttributes ?? []) as string[];
-        return [...base, 'open'] as const;
+        return [...super.observedAttributes, 'open'] as const;
     }
 
+    protected _lastFocused: HTMLElement | null = null;
+    protected _backdrop: HTMLElement | null = null;
+    protected _closeButton: HTMLElement | null = null;
+    protected _root: ShadowRoot | null = null;
+
     protected _innerHTML = /*html*/ `
-		<div id="modal-backdrop" tabindex="-1" class="fixed inset-0 bg-black/10 bg-opacity-50 flex items-center justify-center z-50">
-			<div id="modal-content" class="bg-white rounded-lg shadow-lg w-11/12 max-w-lg p-6 relative">
-				<button id="modal-close" class="absolute top-4 right-4 text-gray-500 hover:text-gray-700 p-2 rounded-sm focus:outline-none focus:ring-2 focus:ring-gray-300">
-					&times;
-				</button>
-				<slot></slot>
-			</div>
+		<div id="modal-backdrop" tabindex="-1" class="fixed inset-0 bg-black/30 items-center justify-center z-50 transition-all transition-discrete duration-500 ease-in-out opacity-0 hidden">
+			<app-card id='modal-content' class="relative w-11/12 max-w-lg">
+                <app-button id="modal-close" btn-type="icon" >
+                    &times;
+                </app-button>
+                <div class="min-h-[330px]">
+				    <slot></slot>
+                </div>
+			</app-card>  
 		</div>
 	`;
 
     connectedCallback(): void {
+        if (!this.isUnique) {
+            console.warn('Only one instance of <page-modal> is allowed.');
+            return;
+        }
         super.connectedCallback();
-        const root = this.shadowRoot || null;
-        if (!root) return;
-        root.getElementById('modal-close')?.addEventListener('click', () =>
-            this.hide()
-        );
-        window.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') {
-                this.hide();
-            }
-        });
+        this._setElements();
+        this._addEvents();
         this.hide();
     }
 
@@ -38,72 +42,89 @@ export class PageModal extends CustomElementTemplate {
         newValue: string | null
     ): void {
         if (oldValue === newValue) return;
-        console.log(
-            `${this._name} - Attribute ${name} has changed from ${oldValue} to ${newValue}`
-        );
-        if (name === 'open') {
-            if (this.hasAttribute('open')) {
-                this.show();
-            } else {
-                this.hide();
-            }
-        }
-    }
-
-    show() {
-        const backdrop = this.shadowRoot?.getElementById('modal-backdrop');
-        if (backdrop) {
-            backdrop.classList.remove('hidden');
-        }
-        const firstFocusable = this.shadowRoot
-            ?.getElementById('modal-content')
-            ?.querySelector<HTMLElement>(
-                'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-            );
-        firstFocusable?.focus();
-        const siblings = this.parentElement?.children;
-        if (siblings) {
-            for (const sibling of siblings) {
-                if (sibling !== this && sibling instanceof HTMLElement) {
-                    sibling.setAttribute('aria-hidden', 'true');
-                    sibling.inert = true;
-                    sibling.style.pointerEvents = 'none';
-                }
-            }
-        }
+        if (name === 'open') newValue !== null ? this.show() : this.hide();
     }
 
     hide() {
-        const backdrop = this.shadowRoot?.getElementById('modal-backdrop');
-        if (backdrop) {
-            backdrop.classList.add('hidden');
-            this.removeAttribute('open');
-            this.shadowRoot
-                ?.querySelector('slot')
-                ?.assignedNodes()
-                .forEach((node) => {
-                    if (node instanceof HTMLElement) {
-                        this.removeChild(node);
-                    }
-                });
+        this._manageFocus('close');
+        this._manageBackdrop('close');
+        this.removeAttribute('open');
+    }
+
+    show() {
+        this._manageBackdrop('open');
+        this._manageFocus('open');
+    }
+
+    _setElements() {
+        this._root = this.shadowRoot || null;
+        this._backdrop = this._root?.getElementById('modal-backdrop') || null;
+        this._closeButton = this._root?.getElementById('modal-close') || null;
+    }
+
+    _addEvents() {
+        if (!this._root) return;
+        this._closeButton?.addEventListener('click', () => this.hide());
+        window.addEventListener('keydown', e => {
+            if (e.key === 'Escape' && this.hasAttribute('open')) this.hide();
+        });
+    }
+
+    _manageBackdrop(type: 'open' | 'close' = 'open') {
+        this._backdrop?.classList.toggle('hidden', type === 'close');
+        this._backdrop?.classList.toggle('flex', type === 'open');
+        this._backdrop?.classList.toggle('opacity-100', type === 'open');
+        this._backdrop?.classList.toggle('opacity-0', type === 'close');
+    }
+
+    _manageFocus(type: 'open' | 'close' = 'open') {
+        const siblings = this.parentElement?.children || [];
+        const activeElement = document.activeElement as HTMLElement;
+
+        for (const sibling of siblings) {
+            if (sibling === this || !(sibling instanceof HTMLElement)) continue;
+            sibling.setAttribute('aria-hidden', `${type === 'open'}`);
+            sibling.inert = type === 'open';
+            sibling.style.pointerEvents = type === 'open' ? 'none' : 'auto';
         }
-        const siblings = this.parentElement?.children;
-        if (siblings) {
-            for (const sibling of siblings) {
-                if (sibling !== this && sibling instanceof HTMLElement) {
-                    sibling.removeAttribute('aria-hidden');
-                    sibling.inert = false;
-                    sibling.style.pointerEvents = 'auto';
-                }
-            }
-        }
+
+        if (!this.contains(activeElement)) this._lastFocused = activeElement;
+
+        type === 'open'
+            ? this._closeButton?.focus()
+            : this._lastFocused?.focus();
     }
 }
 
-export const ModalToggle = (mode: 'open' | 'close', content: HTMLElement) => {
+const ModalToggle = (mode: 'open' | 'close', content: HTMLElement) => {
     const modal = document.querySelector('page-modal') as PageModal | null;
     if (modal) {
         modal.setAttribute('open', mode === 'open' ? '' : 'false');
-        modal.appendChild(content);
+        replaceNode(mode === 'open' ? content : null, modal);
     }
 };
+
+export class ModalButton extends AppButton {
+    _modalContent: () => HTMLElement | HTMLElement | null = () => null;
+
+    set ModalContent(value: () => HTMLElement | HTMLElement | null) {
+        this._modalContent = value;
+    }
+
+    get ModalContent() {
+        return this._modalContent ? this._modalContent : () => null;
+    }
+
+    connectedCallback(): void {
+        super.connectedCallback();
+        const root = this.shadowRoot || null;
+        if (!root) return;
+        root.querySelector('button')?.addEventListener('click', () => {
+            const content = this.ModalContent();
+            if (!content) return;
+            ModalToggle('open', content);
+        });
+    }
+}
+
+customElements.define('modal-button', ModalButton);

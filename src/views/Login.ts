@@ -1,32 +1,103 @@
-export const LoginView = () => {
-    const el = document.createElement('div');
-    el.innerHTML = /*html*/ `
-		
-			<div class="mb-6 ">
-			<h2 class="mt-10 text-2xl/9 font-bold tracking-tight mb-6">Sign in to your account</h2>
-			<form id="login-form" class="flex flex-col gap-4">
-				<label for="email" class="block text-sm/6 font-medium text-gray-900">Email</label>
-				<input type="email" id="email" name="email" required class="block w-full rounded-md bg-white/5 px-3 py-1.5 text-base  outline-1 -outline-offset-1 outline-black/10 placeholder:text-gray-500 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-500 sm:text-sm/6"  />
-				<button type="submit" class="bg-blue-500 text-white p-2 rounded hover:bg-blue-600">Login</button>
-			</form>
-			 <p class="mt-10 text-center text-sm/6 text-gray-400">
-				Don't have an account?
-      			<a href="#" class="font-semibold text-indigo-400 hover:text-indigo-300">Sign up</a>
-   			 </p>
-			
-		</div>
-`;
+import { AppForm } from '@/components/Form';
+import { CustomElementTemplate } from '@/componentTemplate';
+import { ModalButton } from '@/layouts/PageModal.js';
 
-    el.querySelector('#login-form')?.addEventListener('submit', (event) => {
-        event.preventDefault();
-        const form = event.target as HTMLFormElement;
-        const formData = new FormData(form);
-        const email = formData.get('email') as string;
-        if (form.checkValidity()) {
-            console.log('Logging in with email:', email);
-        } else {
-            alert('Please enter a valid email.');
-        }
-    });
-    return el;
+export class LoginButton extends ModalButton {
+    constructor() {
+        super();
+        this.ModalContent = () => document.createElement('login-view');
+    }
+}
+
+export class RegisterButton extends ModalButton {
+    constructor() {
+        super();
+        this.ModalContent = () => document.createElement('register-view');
+    }
+}
+
+interface ViewOptions {
+    header?: string;
+    footer?: string;
+    redirect?: string;
+    href?: string;
+    submit?: string;
+    html?: string;
+}
+
+const Register = {
+    header: 'Register for an account',
+    footer: 'Already have an account?',
+    redirect: 'Log in',
+    href: '#',
+    html: 'login-button',
 };
+
+const Login = {
+    header: 'Sign in to your account',
+    footer: "Don't have an account?",
+    redirect: 'Sign up',
+    href: '#',
+    html: 'register-button',
+};
+
+customElements.define('register-button', RegisterButton);
+
+const LoginForm = {
+    fields: [
+        {
+            label: 'Email',
+            for: 'email',
+            type: 'email',
+            required: true,
+        },
+    ],
+    buttonLabel: 'Login',
+    onSubmit: (data: Record<string, FormDataEntryValue>) => {
+        console.log('Login form submitted with data:', data);
+    },
+};
+
+const RegisterForm = {
+    fields: [
+        {
+            label: 'Email',
+            for: 'email',
+            type: 'email',
+            required: true,
+        },
+    ],
+    buttonLabel: 'Register',
+};
+
+const getView = (view: ViewOptions) => {
+    return /*html*/ `
+        <div>
+        <h2 class="mt-10 text-2xl/9 font-bold tracking-tight mb-6">${view.header}</h2>
+        <app-form></app-form>
+        <div class="mt-6 flex items-baseline justify-center">
+            <p class="mt-10 text-center text-sm/6 text-gray-400">${view.footer}</p>
+            <${view.html} btn-type="link" label="${view.redirect}"></${view.html}>
+        </div>
+    `;
+};
+
+export class LoginViewElement extends CustomElementTemplate {
+    protected _innerHTML = getView(Login);
+
+    connectedCallback() {
+        super.connectedCallback();
+        const appForm = this.shadowRoot?.querySelector('app-form') as AppForm;
+        console.log(appForm);
+        if (appForm) appForm.definitions = LoginForm;
+    }
+
+    constructor() {
+        super();
+    }
+}
+
+customElements.define('login-view', LoginViewElement);
+
+export const LoginView = () => `<login-view></login-view>`;
+export const RegisterView = () => `<register-view></register-view>`;

@@ -1,8 +1,8 @@
-import { ModalToggle } from '@/layouts/PageModal.js';
 import { CustomElementTemplate } from '../componentTemplate.js';
 import { navigationLinks } from '@/ts/router.js';
-import { LoginView } from '@/views/Login.js';
+import { LoginButton } from '@/views/Login.js';
 
+customElements.define('login-button', LoginButton);
 export class NavigationLink extends CustomElementTemplate {
     static get observedAttributes() {
         const base = (super.observedAttributes ?? []) as string[];
@@ -20,8 +20,7 @@ export class NavigationLink extends CustomElementTemplate {
         oldValue: string | null,
         newValue: string | null
     ) {
-        // if (oldValue === newValue) return;
-        console.log('not executed');
+        if (oldValue === newValue) return;
         if (name === 'href' || name === 'label') this.render();
         if (name === 'active') {
             const root = this.shadowRoot ?? this;
@@ -46,25 +45,6 @@ export class NavigationLink extends CustomElementTemplate {
 
 customElements.define('navigation-link', NavigationLink);
 
-export class LoginButton extends CustomElementTemplate {
-    protected _innerHTML = /*html*/ `
-        <button id="login-button" class="bg-blue-500 text-white p-2 rounded hover:bg-blue-600">
-            Login
-        </button>
-    `;
-
-    connectedCallback(): void {
-        super.connectedCallback();
-        const root = this.shadowRoot || null;
-        if (!root) return;
-        root.getElementById('login-button')?.addEventListener('click', () => {
-            ModalToggle('open', LoginView());
-        });
-    }
-}
-
-customElements.define('login-button', LoginButton);
-
 export class NavigationMenu extends CustomElementTemplate {
     static get observedAttributes() {
         const base = (super.observedAttributes ?? []) as string[];
@@ -82,7 +62,7 @@ export class NavigationMenu extends CustomElementTemplate {
                         )
                         .join('')}
                     <li>
-                        <login-button></login-button>
+                        <login-button as="button" label="Login"></login-button>
                     </li>
                 </ul>
             </nav>`;
