@@ -17,5 +17,4 @@ export const playersMockData: getPlayers = {
             email: 'bob@example.com',
         },
     ],
-    status: 'success',
 };

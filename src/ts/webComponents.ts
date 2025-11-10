@@ -5,6 +5,7 @@ import { BaseLayout } from '@/layouts/BaseLayout';
 import { ExampleElement } from '@/componentTemplate';
 import { NavigationMenu } from '@/components/NavigationMenu.js';
 import { PageModal } from '@/layouts/PageModal.js';
+import { Game } from '@/components/GameRenderer.js';
 
 // From ../components
 customElements.define('app-button', AppButton);
@@ -15,3 +16,4 @@ customElements.define('base-layout', BaseLayout);
 customElements.define('example-element', ExampleElement);
 customElements.define('navigation-menu', NavigationMenu);
 customElements.define('page-modal', PageModal);
+customElements.define('game-view', Game);

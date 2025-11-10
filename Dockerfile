@@ -18,4 +18,4 @@ RUN npm install && npm run build
 EXPOSE 8081
 
 # Servir el frontend
-CMD ["http-server", "./dist", "-p", "8081", "-S", "-C", "certs/fd_transcendence.crt", "-K", "certs/fd_transcendence.key"]
+CMD ["http-server", "./dist", "-p", "8081", "-a", "0.0.0.0", "-S", "-C", "certs/fd_transcendence.crt", "-K", "certs/fd_transcendence.key"]

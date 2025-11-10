@@ -4,12 +4,12 @@ import { RouterOutlet } from '../router/RouterOutlet';
 import { HomeView } from '../views/Home';
 import { AddPlayerView, PlayersView } from '../views/Players';
 import { playersMockData } from '../API_MOCKS/Players';
-import { LoginView } from '../views/Login';
+import { Game } from '../views/Game';
 
 async function getPlayerData(): Promise<typeof playersMockData> {
     console.log('Loading player data (mock)...');
     // Simulate network delay
-    const fetchMock = await new Promise((resolve) =>
+    const fetchMock = await new Promise(resolve =>
         setTimeout(resolve, 500)
     ).then(() => {
         return playersMockData;
@@ -39,13 +39,14 @@ export const routes: Route[] = [
         ],
     },
     {
-        path: 'login',
-        id: 'login',
-        view: LoginView,
+        path: 'game',
+        id: 'game',
+        view: Game,
     },
 ];
 
 export const navigationLinks = [
     { href: '/', label: 'Home' },
     { href: '/players', label: 'Player Management' },
+    { href: '/game', label: 'Game' },
 ];
