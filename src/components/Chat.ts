@@ -39,7 +39,7 @@ export class Message extends CustomElementTemplate {
 
 customElements.define('chat-message', Message);
 
-class ChatWebSocket {
+export class APPWebSocket {
     private _ws: WebSocket | null = null;
 
     constructor(
@@ -148,7 +148,6 @@ export class StreamChat extends CustomElementTemplate {
     };
 
     private onMessageCallback = (data: HistoryMessages) => {
-        console.log('📩 Message from server:', data);
         if (!this._messagesHTML) return;
         data?.messages.forEach(msg => {
             this.addMessage(msg.alias, msg.text, 'message', msg.timestamp);
@@ -161,7 +160,7 @@ export class StreamChat extends CustomElementTemplate {
         this._messagesHTML = this.shadowRoot?.getElementById('messages');
         if (!this._messagesHTML) return;
 
-        this._ws = new ChatWebSocket(
+        this._ws = new APPWebSocket(
             'wss://localhost:8082/chat',
             this.onOpenCallback,
             this.onMessageCallback
@@ -194,13 +193,7 @@ export class StreamChat extends CustomElementTemplate {
     }
 
     sendMessage(text :string): void {
-     
-        // const input = this.shadowRoot?.getElementById(
-        //     'messageInput'
-        // ) as HTMLInputElement;
         // const text = input.value.trim();
-        
-
         if (text && this._ws && this._ws.readyState === WebSocket.OPEN) {
             this._ws.send(
                 JSON.stringify({
@@ -234,126 +227,60 @@ export class StreamChat extends CustomElementTemplate {
 
 
 
-const prev = /*html*/ `
-        
 
-        <script>
-            let ws;
-            let currentalias = 'alias' + Math.floor(Math.random() * 1000);
-            
-            function connectWebSocket() {
-                /*ws = new WebSocket('wss://localhost:8082/chat');
-                
-                ws.onopen = function() {
-                    console.log('✅ Connected to chat server');
-                    addMessage('System', 'Connected to chat as ' + currentalias, 'system');
-                }; -->
-    
-
-
-				
-                ws.onmessage = function(event) {
-                    const data = JSON.parse(event.data);
-                    
-                    if (data.type === 'history') {
-                        document.getElementById('messages').innerHTML = '';
-                        data.messages.forEach(msg => {
-                            addMessage(msg.alias_alias, msg.message_text, 'message', msg.timestamp);
-                        });
-                    } else if (data.type === 'message') {
-                        addMessage(data.alias, data.text, 'message', data.timestamp);
-                    } else if (data.type === 'alias_joined') {
-                        addMessage('System', data.alias + ' joined the chat', 'system');
-                    } else if (data.type === 'alias_left') {
-                        addMessage('System', data.alias + ' left the chat', 'system');
-                    }
-                };
-                
-                ws.onclose = function() {
-                    addMessage('System', 'Disconnected from chat', 'system');
-                    // Try to reconnect after 3 seconds
-                    setTimeout(connectWebSocket, 3000);
-                };
-                
-                ws.onerror = function(error) {
-                    console.error('WebSocket error:', error);
-                };
-            }
-                        */
-            
-        
-            
-    
-         
-            
-            // Initialize when page loads
-            document.addEventListener('DOMContentLoaded', function() {
-                document.getElementById('sendButton').addEventListener('click', sendMessage);
-                
-                document.getElementById('messageInput').addEventListener('keypress', function(e) {
-                    if (e.key === 'Enter') {
-                        sendMessage();
-                    }
-                });
-                
-                connectWebSocket();
-            });
-        </script>
-
-  `;
 
 // AHORA
-// dataHistory = {
-// 	type: 'history',
-// 	messages: [
-// 		{
-// 			alias: 'Alice',
-// 			text: 'Hello everyone!',
-// 			timestamp: '10:00 AM'
-// 		},
-// 		{
-// 			alias: 'Bob',
-// 			text: 'Hi Alice!',
-// 			timestamp: '10:01 AM'
-// 		}
-// 	]
-// };
+const dataHistory = {
+	type: 'history',
+	messages: [
+		{
+			alias: 'Alice',
+			text: 'Hello everyone!',
+			timestamp: '10:00 AM'
+		},
+		{
+			alias: 'Bob',
+			text: 'Hi Alice!',
+			timestamp: '10:01 AM'
+		}
+	]
+};
 
-// dataJoined = {
-// 	type: 'alias_joined',
-// 	alias: 'Charlie'
-// };
+const dataJoined = {
+	type: 'alias_joined',
+	alias: 'Charlie'
+};
 
-// dataMessage = {
-// 	type: 'message',
-// 	alias: 'Charlie',
-// 	text: 'Good morning!',
-// 	timestamp: '10:02 AM'
-// };
+const dataMessage = {
+	type: 'message',
+	alias: 'Charlie',
+	text: 'Good morning!',
+	timestamp: '10:02 AM'
+};
 
-// dataLeft = {
-// 	type: 'alias_left',
-// 	alias: 'Bob'
-// };
+const dataLeft = {
+	type: 'alias_left',
+	alias: 'Bob'
+};
 
-// // Unified
-// data = [
-// 	{
-// 		type: 'muted',
-// 		alias: 'Bob',
-// 		text: 'Bob joined the chat',
-// 		timestamp: '10:03 AM'
-// 	},
-// 	{
-// 		type: 'chat_message',
-// 		alias: 'Bob',
-// 		text: 'How is everyone?',
-// 		timestamp: '10:04 AM'
-// 	},
-// 	{
-// 		type: 'muted',
-// 		alias: 'Bob',
-// 		text: 'Bob left the chat',
-// 		timestamp: '10:05 AM'
-// 	},
-// ];
+// Unified
+const data = [
+	{
+		type: 'muted',
+		alias: 'Bob',
+		text: 'Bob joined the chat',
+		timestamp: '10:03 AM'
+	},
+	{
+		type: 'chat_message',
+		alias: 'Bob',
+		text: 'How is everyone?',
+		timestamp: '10:04 AM'
+	},
+	{
+		type: 'muted',
+		alias: 'Bob',
+		text: 'Bob left the chat',
+		timestamp: '10:05 AM'
+	},
+];

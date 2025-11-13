@@ -1,9 +1,21 @@
 import { CustomElementTemplate } from '@/componentTemplate';
 import {
-    updateGameStateFromServer,
     staticDefs,
-    fakeWebSocket,
 } from './ServerMock';
+import { APPWebSocket } from './Chat';
+
+
+interface ClientResponse {
+    playerId: number;
+    positionY: number;
+}
+
+interface ServerResponse {
+    players: { id: number; score: number; position: { y: number } }[];
+    ball: { x: number; y: number };
+}
+
+
 
 const listenerFunction = (e: KeyboardEvent) => {
     console.log('Listener function called');
@@ -32,13 +44,29 @@ export class Game extends CustomElementTemplate {
 		<canvas id="gameCanvas" width="${staticDefs.width}" height="${staticDefs.height}" class="border border-gray-300"></canvas>
 	`;
     protected _canvas: HTMLCanvasElement | null = null;
+    private _ws: WebSocket | null = null;
+
+
+    private onOpenCallback = () => {
+        console.log('✅ Connected to fGame server' );
+    };
+
+    private onMessageCallBack = (data : ServerResponse) => {
+        this.drawGame(data)
+    }
 
     connectedCallback() {
         super.connectedCallback();
         this.initializeElements();
         window.addEventListener('keydown', listenerFunction);
         window.addEventListener('keydown', listenerFunctionPlayer2);
-        this.initializeGame();
+        // this._ws = new APPWebSocket(
+        //     'wss://localhost:8082/chat',
+        //     this.onOpenCallback,
+        //     this.onMessageCallback
+        // ).ws;
+        // this.();
+
     }
 
     initializeElements() {
@@ -60,7 +88,7 @@ export class Game extends CustomElementTemplate {
         return context;
     }
 
-    initializeGame() {
+    drawGame(data:ServerResponse) {
         if (!this._canvas) {
             this.renderError('Canvas not found');
             return;
@@ -92,22 +120,22 @@ export class Game extends CustomElementTemplate {
         const player1X = 0;
         const player2X = canvas.width - staticDefs.playerSize.x;
 
-        const updateGame = async () => {
-            const serverGameState = await updateGameStateFromServer();
+        // const updateGame = async () => {
+        //     const serverGameState = await updateGameStateFromServer();
 
-            if (!serverGameState) {
-                this.renderError('Failed to fetch game state from server');
-                return;
-            }
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            drawPlayer(player1X, serverGameState.players[0].position.y);
-            drawPlayer(player2X, serverGameState.players[1].position.y);
-            drawBall(serverGameState.ball.x, serverGameState.ball.y);
+        //     if (!serverGameState) {
+        //         this.renderError('Failed to fetch game state from server');
+        //         return;
+        //     }
+        //     ctx.clearRect(0, 0, canvas.width, canvas.height);
+        //     drawPlayer(player1X, serverGameState.players[0].position.y);
+        //     drawPlayer(player2X, serverGameState.players[1].position.y);
+        //     drawBall(serverGameState.ball.x, serverGameState.ball.y);
 
-            requestAnimationFrame(updateGame);
-        };
+        //     requestAnimationFrame(updateGame);
+        // };
 
-        updateGame();
+        // updateGame();
     }
 
     renderError(message: string) {
