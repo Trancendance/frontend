@@ -1,4 +1,5 @@
 import { CustomElementTemplate } from '../componentTemplate';
+import { AppForm } from '@/components/Form';
 
 interface chatStats {
     clients: number;
@@ -69,8 +70,7 @@ class ChatWebSocket {
     }
 
     private initializeWebSocket = () => {
-        const _streamId = 95;
-        this._ws = new WebSocket(`wss://localhost:8082/chat/${_streamId}`);
+        this._ws = new WebSocket(`wss://localhost:8082/chat`);
         if (!this._ws) this.reconnectAttempt('WebSocket initialization failed');
     };
 
@@ -93,34 +93,18 @@ class ChatWebSocket {
         console.error('WebSocket error:', error);
 }
 
-export class Chat extends CustomElementTemplate {
+
+
+export class StreamChat extends CustomElementTemplate {
     protected _innerHTML = /*html*/ `
 	<style>
-            body { 
-                font-family: Arial, sans-serif; 
-                max-width: 800px; 
-                margin: 0 auto; 
-                padding: 20px; 
-                background-color: #f5f5f5;
-            }
-            .container { 
-                background: white; 
-                padding: 30px; 
-                border-radius: 10px; 
-                box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            }
             .stats { 
                 background: #e8f5e8; 
                 padding: 15px; 
                 border-radius: 5px; 
                 margin: 20px 0;
             }
-            .chat-container {
-                margin-top: 30px;
-                border: 1px solid #ddd;
-                border-radius: 5px;
-                padding: 15px;
-            }
+            
             #messages { 
                 height: 300px; 
                 overflow-y: auto; 
@@ -129,19 +113,7 @@ export class Chat extends CustomElementTemplate {
                 margin-bottom: 10px;
                 background: #f9f9f9;
             }
-            #messageInput { 
-                width: 70%; 
-                padding: 8px; 
-                margin-right: 10px;
-            }
-            button { 
-                padding: 8px 15px; 
-                background: #007cba; 
-                color: white; 
-                border: none; 
-                border-radius: 4px; 
-                cursor: pointer;
-            }
+           
             button:hover { background: #005a87; }
             .message { margin: 5px 0; }
             .alias { font-weight: bold; color: #007cba; }
@@ -149,7 +121,7 @@ export class Chat extends CustomElementTemplate {
         </style>
 
    
-        <div class="container">
+        <app-card>
             <h1>WebSocket Chat Server</h1>
             
             <div class="stats">
@@ -158,16 +130,13 @@ export class Chat extends CustomElementTemplate {
                 <p><strong>Connected Clients:</strong> ${stats.clients}</p>
             </div>
 
-            <div class="chat-container">
+            <div class="m-1">
                 <h3>Live Chat Test</h3>
                 <div id="messages"></div>
-                <div>
-                    <input type="text" id="messageInput" placeholder="Type your message...">
-                    <button id="sendButton">Send</button>
-                    <button id="deleteButton">Delete</button>
-                </div>
+                <app-form id="form-wrapper"></app-form>
+                
             </div>
-        </div>
+        </app-card>
 		`;
 
     private _aliasname: string = 'alias' + Math.floor(Math.random() * 1000);
@@ -197,6 +166,11 @@ export class Chat extends CustomElementTemplate {
             this.onOpenCallback,
             this.onMessageCallback
         ).ws;
+
+        const appForm = this.shadowRoot?.querySelector('app-form') as AppForm;
+   
+        if (appForm) appForm.definitions = this._MessageForm;
+
     }
 
     addMessage(
@@ -219,11 +193,13 @@ export class Chat extends CustomElementTemplate {
         this._messagesHTML.scrollTop = this._messagesHTML.scrollHeight;
     }
 
-    sendMessage(): void {
-        const input = this.shadowRoot?.getElementById(
-            'messageInput'
-        ) as HTMLInputElement;
-        const text = input.value.trim();
+    sendMessage(text :string): void {
+     
+        // const input = this.shadowRoot?.getElementById(
+        //     'messageInput'
+        // ) as HTMLInputElement;
+        // const text = input.value.trim();
+        
 
         if (text && this._ws && this._ws.readyState === WebSocket.OPEN) {
             this._ws.send(
@@ -232,7 +208,6 @@ export class Chat extends CustomElementTemplate {
                     text: text,
                 })
             );
-            input.value = '';
         }
     }
 
@@ -241,9 +216,23 @@ export class Chat extends CustomElementTemplate {
         this._ws = null;
         super.disconnectedCallback();
     }
+
+    _MessageForm = {
+        fields: [
+            {
+                label: 'Message',
+                for: 'message',
+                required:'true'
+            }
+        ],
+        buttonLabel: 'Send',
+        onSubmit: (data: Record<string, FormDataEntryValue>) => {
+            this.sendMessage(data.message as string)
+        },
+    }
 }
 
-customElements.define('chat-component', Chat);
+
 
 const prev = /*html*/ `
         
@@ -259,7 +248,7 @@ const prev = /*html*/ `
                     console.log('✅ Connected to chat server');
                     addMessage('System', 'Connected to chat as ' + currentalias, 'system');
                 }; -->
-                */
+    
 
 
 				
@@ -290,6 +279,7 @@ const prev = /*html*/ `
                     console.error('WebSocket error:', error);
                 };
             }
+                        */
             
         
             

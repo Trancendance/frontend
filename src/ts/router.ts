@@ -5,6 +5,7 @@ import { HomeView } from '../views/Home';
 import { AddPlayerView, PlayersView } from '../views/Players';
 import { playersMockData } from '../API_MOCKS/Players';
 import { Game } from '../views/Game';
+import { Chat } from '../views/Chat'
 
 async function getPlayerData(): Promise<typeof playersMockData> {
     console.log('Loading player data (mock)...');
@@ -24,6 +25,11 @@ export const routes: Route[] = [
         path: '/',
         id: 'home',
         view: HomeView,
+    },
+    {
+        path:'chat',
+        id: 'chat',
+        view: Chat,
     },
     {
         path: 'players',

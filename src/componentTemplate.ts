@@ -32,15 +32,21 @@ export class CustomElementTemplate extends HTMLElement {
     }
 
     protected render() {
-        this.#root.innerHTML = /*html*/ `
-      		<link rel="stylesheet" href="/assets/styles.css">
-      		${this._innerHTML}
-    `;
+        this.#root.innerHTML = '';
+
+        const style = document.createElement('link');
+        style.rel = 'stylesheet';
+        style.href = '/tailwind.css';
+    
+        this.#root.appendChild(style);
+        const wrapper = document.createElement('div');
+        wrapper.innerHTML = this._innerHTML;
+        this.#root.appendChild(wrapper);
     }
 
     connectedCallback() {
         this.render();
-        console.log(`${this._name} - Added to page`);
+        // console.log(`${this._name} - Added to page`);
     }
 
     disconnectedCallback() {
@@ -76,42 +82,4 @@ export class CustomElementTemplate extends HTMLElement {
         }
         return true;
     }
-}
-
-// ---- Subclass example ----
-
-export class ExampleElement extends CustomElementTemplate {
-    // 3) Make it static and merge with base
-    static get observedAttributes(): readonly string[] {
-        return [...super.observedAttributes, 'example-attribute'] as const;
-    }
-
-    protected _name = 'example-element';
-    protected _innerHTML = /*html*/ `
-		<p>This is an example element with slots.</p>
-		<div class="border p-2 bg-white">
-		<p>It has an example-attribute:
-		 	<strong>
-				<slot name="example-attribute">default value</slot>
-			</strong></p>
-		</div>
-		<div class="border p-2 bg-yellow-200">
-		<p>And a default slot: 
-			<strong>
-				<slot>This is default slot content</slot>
-			</strong>
-		</p>
-		</div>
-	`;
-
-    attributeChangedCallback: AttributeCallback<string> = (
-        name,
-        oldValue,
-        newValue
-    ) => {
-        super.attributeChangedCallback(name, oldValue, newValue);
-        if (name === 'example-attribute') {
-            console.log(`New value: ${newValue}`);
-        }
-    };
 }

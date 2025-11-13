@@ -31,7 +31,6 @@ export class AppForm extends CustomElementTemplate {
     protected _form: HTMLFormElement | null = null;
 
     set definitions(value: FormDefinition) {
-        console.log('Setting form definitions:', value);
         this._definitions = value;
 
         if (this._form) {
@@ -71,6 +70,7 @@ export class AppForm extends CustomElementTemplate {
                     for: field.for,
                     type: field.type || 'text',
                     required: field.required ? 'required' : '',
+                    name: field.for
                 },
                 buttonLabel
             )
@@ -99,6 +99,7 @@ export class AppForm extends CustomElementTemplate {
         const data = Object.fromEntries(formData.entries());
         console.log('Form submitted with data:', data);
         this._definitions!.onSubmit(data);
+       
     }
 }
 
@@ -114,26 +115,39 @@ export class FormGroup extends CustomElementTemplate {
             'type',
             'required',
             'isValid',
+            'name'
         ] as const;
     }
 
     protected _inputElement: HTMLInputElement | null = null;
-    protected _labelElement: HTMLLabelElement | null = null;
     protected _errorSlot: HTMLSlotElement | null = null;
+    protected _internals: ElementInternals | null = null;
+
+    static formAssociated = true;
+
+    constructor()
+    {
+        super();
+        this._internals = this.attachInternals();
+        
+    }
 
     connectedCallback(): void {
         this._innerHTML = this.template();
         super.connectedCallback();
         this._inputElement = this.shadowRoot?.querySelector('input') || null;
-        this._labelElement = this.shadowRoot?.querySelector('label') || null;
         this._errorSlot = this.shadowRoot?.querySelector(
             'slot[name="error-message"]'
         ) as HTMLSlotElement | null;
-        console.log(
-            'FormGroup connected:',
-            this._inputElement,
-            this._labelElement
-        );
+       
+
+        if (!this._inputElement ) return;
+
+        this._inputElement.addEventListener("input", () => {
+            if(!this._internals) return;
+            this._internals.setFormValue(this._inputElement!.value); // ← REQUIRED
+        });
+        
     }
 
     attributeChangedCallback(
@@ -157,7 +171,7 @@ export class FormGroup extends CustomElementTemplate {
         const template = /*html*/ `
         <div data-form-group=${forAttr}  class="mb-4">
             <label class="block mb-1 font-s" for="${forAttr}">${label} ${required ? '*' : ''}</label>
-            <input type="${type}" ${required} id="${forAttr}" class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+            <input type="${type}" name='${forAttr}' ${required} id="${forAttr}" class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
             <slot name="error-message"></slot>
         </div>
 		`;
