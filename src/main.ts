@@ -1,6 +1,7 @@
 import { startRouter } from '@/router/routerSPA';
-import { routes } from './router';
-import './webComponents';
+import { routes } from '@/ts/router';
+import '@/ts/webComponents';
+import './index.css'
 
 const el = document.querySelector('#app');
 if (el) {
