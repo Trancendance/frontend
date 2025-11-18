@@ -3,8 +3,7 @@ FROM node:20-slim
 WORKDIR /usr/src/app
 COPY . .
 RUN npm install
-EXPOSE 5173
-EXPOSE 8081
+EXPOSE 5173 8081
 ENV HOST=0.0.0.0
 
 CMD ["npm", "run", "dev"]

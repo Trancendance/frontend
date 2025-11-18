@@ -4,7 +4,6 @@
     "description": "",
     "main": "index.js",
     "scripts": {
-        "test": "echo \"Error: no test specified\" && exit 1",
         "clean": "rm -rf dist && mkdir -p dist/assets",
         "typecheck": "tsc --noEmit",
         "build:css": "tailwindcss -i ./src/input.css -o ./public/tailwind.css",

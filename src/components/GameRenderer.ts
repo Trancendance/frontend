@@ -14,22 +14,6 @@ interface ServerResponse {
 
 
 
-const listenerFunction = (e: KeyboardEvent) => {
-    console.log('Listener player 1 function called');
-    const playerId = 1;
-    const player = e.key === 'ArrowUp' ? -5 : e.key === 'ArrowDown' ? 5 : 0;
-    if (player === 0) return;
-    return { playerId, positionY: player };
-};
-
-const listenerFunctionPlayer2 = (e: KeyboardEvent): ClientResponse | void => {
-    console.log('Listener player 2 function called');
-    const playerId = 2;
-    const player = e.key === 'w' ? -5 : e.key === 's' ? 5 : 0;
-    if (player === 0) return;
-    return { playerId, positionY: player };
-};
-
 export class Game extends CustomElementTemplate {
     protected _innerHTML = /*html*/ `	
 		<canvas id="gameCanvas" width="${staticDefs.width}" height="${staticDefs.height}" class="border border-gray-300"></canvas>
@@ -39,23 +23,25 @@ export class Game extends CustomElementTemplate {
     private _ws: WebSocket | null = null;
 
     private onOpenCallback = (data: ServerResponse) => {
+        console.log("on open callback called");
         this.drawGame(data);
     };
 
     private onMessageCallBack = (data: ServerResponse) => {
+        console.log("on message callback called");
         this.drawGame(data);
     };
 
     connectedCallback() {
         super.connectedCallback();
         this.initializeElements();
-        window.addEventListener('keydown', listenerFunction);
-        window.addEventListener('keydown', listenerFunctionPlayer2);
         this._ws = new APPWebSocket(
-            'wss://localhost:8082/chat',
+            'wss://localhost:8083/fgame',
             this.onOpenCallback,
             this.onMessageCallBack
         ).ws;
+        window.addEventListener('keydown', (e) => this.listenerFunction(e));
+        window.addEventListener('keydown', (e) => this.listenerFunction2(e));
     }
 
     initializeElements() {
@@ -80,13 +66,13 @@ export class Game extends CustomElementTemplate {
     }
 
     drawGame(data: ServerResponse) {
+        console.log(data);
         if (!this._ctx) return;
-
         this._ctx.clearRect(0, 0, staticDefs.width, staticDefs.height);
         this.drawPlayer(
             this._ctx,
             staticDefs.playerX.player1,
-            data.players[0].position.y
+            data.players[0].position.y 
         );
         this.drawPlayer(
             this._ctx,
@@ -103,4 +89,18 @@ export class Game extends CustomElementTemplate {
 			</div>
 		`;
     }
+
+    listenerFunction = (e: KeyboardEvent) => {
+        const playerId = 1;
+        const player = e.key === 'ArrowUp' ? -5 : e.key === 'ArrowDown' ? 5 : 0;
+        if (player === 0 || !this._ws) return;
+        this._ws.send(JSON.stringify({ playerId, positionY: player }));
+    };
+    
+    listenerFunction2 = (e: KeyboardEvent) => {
+        const playerId = 2;
+        const player = e.key === 'w' ? -5 : e.key === 's' ? 5 : 0;
+        if (player === 0 || !this._ws) return;
+        this._ws.send(JSON.stringify({ playerId, positionY: player }));
+    };
 }

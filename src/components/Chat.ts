@@ -41,12 +41,14 @@ customElements.define('chat-message', Message);
 
 export class APPWebSocket {
     private _ws: WebSocket | null = null;
+    private _endpoint: string;
 
     constructor(
         endpoint: string,
         onOpenCallback: (data: any) => void,
         onMessageCallback: (data: any) => void
     ) {
+        this._endpoint = endpoint;
         this._ws = new WebSocket(endpoint);
         this.ws!.onopen = (data: any) => {
             console.log('✅ Connected websocket');
@@ -70,7 +72,7 @@ export class APPWebSocket {
     }
 
     private initializeWebSocket = () => {
-        this._ws = new WebSocket(`wss://localhost:8082/chat`);
+        this._ws = new WebSocket(this._endpoint);
         if (!this._ws) this.reconnectAttempt('WebSocket initialization failed');
     };
 
@@ -141,7 +143,8 @@ export class StreamChat extends CustomElementTemplate {
     private _ws: WebSocket | null = null;
     private _messagesHTML: HTMLElement | null | undefined = null;
 
-    private onOpenCallback = () => {
+    private onOpenCallback = (data : any) => {
+        console.log(data);
         console.log('✅ Connected to chat server as ' + this._aliasname);
     };
 
@@ -190,7 +193,6 @@ export class StreamChat extends CustomElementTemplate {
     }
 
     sendMessage(text: string): void {
-        // const text = input.value.trim();
         if (text && this._ws && this._ws.readyState === WebSocket.OPEN) {
             this._ws.send(
                 JSON.stringify({
