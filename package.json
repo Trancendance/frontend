@@ -11,7 +11,7 @@
         "copy:public": "cp -r public/* dist/",
         "build": "vite build",
         "watch:css": "tailwindcss -i ./src/input.css -o ./public/tailwind.css --watch --poll",
-        "dev:vite": "vite --host",
+        "dev:vite": "vite --host 0.0.0.0",
         "dev": "npm-run-all --parallel watch:css dev:vite",
         "format": "prettier -w .",
         "lint": "eslint ."

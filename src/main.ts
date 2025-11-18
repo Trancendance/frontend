@@ -13,5 +13,6 @@ if (el) {
 		</base-layout>
 	`;
 }
+console.log('Starting router with routes:', routes);
 
 startRouter(routes);

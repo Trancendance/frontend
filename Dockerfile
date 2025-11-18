@@ -1,5 +1,6 @@
 #frontend dev
 FROM node:20-slim
+RUN apt-get update && apt-get install -y python3 make g++ build-essential
 WORKDIR /usr/src/app
 COPY . .
 RUN npm install
