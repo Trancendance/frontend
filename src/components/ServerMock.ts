@@ -15,9 +15,14 @@ const staticDefs = {
         x: 10,
         y: 300,
     },
+    playerX: {
+        player1: 0,
+        player2: 790,
+    },
     playerColor: 'blue',
     ballColor: 'red',
     ballSize: 20,
+    ballPi: Math.PI * 2,
 };
 
 // const gameState = {

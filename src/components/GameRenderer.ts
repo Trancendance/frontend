@@ -1,9 +1,6 @@
 import { CustomElementTemplate } from '@/componentTemplate';
-import {
-    staticDefs,
-} from './ServerMock';
+import { staticDefs } from './ServerMock';
 import { APPWebSocket } from './Chat';
-
 
 interface ClientResponse {
     playerId: number;
@@ -18,124 +15,85 @@ interface ServerResponse {
 
 
 const listenerFunction = (e: KeyboardEvent) => {
-    console.log('Listener function called');
+    console.log('Listener player 1 function called');
     const playerId = 1;
     const player = e.key === 'ArrowUp' ? -5 : e.key === 'ArrowDown' ? 5 : 0;
     if (player === 0) return;
-    fakeWebSocket.setGameState({
-        playerId: playerId,
-        positionY: player,
-    });
+    return { playerId, positionY: player };
 };
 
-const listenerFunctionPlayer2 = (e: KeyboardEvent) => {
-    console.log('Listener function for Player 2 called');
+const listenerFunctionPlayer2 = (e: KeyboardEvent): ClientResponse | void => {
+    console.log('Listener player 2 function called');
     const playerId = 2;
     const player = e.key === 'w' ? -5 : e.key === 's' ? 5 : 0;
     if (player === 0) return;
-    fakeWebSocket.setGameState({
-        playerId: playerId,
-        positionY: player,
-    });
+    return { playerId, positionY: player };
 };
 
 export class Game extends CustomElementTemplate {
     protected _innerHTML = /*html*/ `	
 		<canvas id="gameCanvas" width="${staticDefs.width}" height="${staticDefs.height}" class="border border-gray-300"></canvas>
 	`;
-    protected _canvas: HTMLCanvasElement | null = null;
+
+    protected _ctx: CanvasRenderingContext2D | null = null;
     private _ws: WebSocket | null = null;
 
-
-    private onOpenCallback = () => {
-        console.log('✅ Connected to fGame server' );
+    private onOpenCallback = (data: ServerResponse) => {
+        this.drawGame(data);
     };
 
-    private onMessageCallBack = (data : ServerResponse) => {
-        this.drawGame(data)
-    }
+    private onMessageCallBack = (data: ServerResponse) => {
+        this.drawGame(data);
+    };
 
     connectedCallback() {
         super.connectedCallback();
         this.initializeElements();
         window.addEventListener('keydown', listenerFunction);
         window.addEventListener('keydown', listenerFunctionPlayer2);
-        // this._ws = new APPWebSocket(
-        //     'wss://localhost:8082/chat',
-        //     this.onOpenCallback,
-        //     this.onMessageCallback
-        // ).ws;
-        // this.();
-
+        this._ws = new APPWebSocket(
+            'wss://localhost:8082/chat',
+            this.onOpenCallback,
+            this.onMessageCallBack
+        ).ws;
     }
 
     initializeElements() {
-        this._canvas = this.shadowRoot?.getElementById(
+        const canvas = this.shadowRoot?.getElementById(
             'gameCanvas'
         ) as HTMLCanvasElement;
+        if (!canvas) this.renderError('Canvas not found');
+        else this._ctx = canvas.getContext('2d');
     }
 
-    getNewContext(): CanvasRenderingContext2D | null {
-        if (!this._canvas) {
-            this.renderError('Canvas not found');
-            return null;
-        }
-        const context = this._canvas.getContext('2d');
-        if (!context) {
-            this.renderError('Failed to get canvas context');
-            return null;
-        }
-        return context;
+    drawPlayer(ctx: CanvasRenderingContext2D, x: number, y: number) {
+        ctx.fillStyle = staticDefs.playerColor;
+        ctx.fillRect(x, y, staticDefs.playerSize.x, staticDefs.playerSize.y);
     }
 
-    drawGame(data:ServerResponse) {
-        if (!this._canvas) {
-            this.renderError('Canvas not found');
-            return;
-        }
+    drawBall(ctx: CanvasRenderingContext2D, x: number, y: number) {
+        ctx.beginPath();
+        ctx.arc(x, y, staticDefs.ballSize, 0, Math.PI * 2, true);
+        ctx.closePath();
+        ctx.fillStyle = staticDefs.ballColor;
+        ctx.fill();
+    }
 
-        const ctx = this.getNewContext();
-        if (!ctx) return;
+    drawGame(data: ServerResponse) {
+        if (!this._ctx) return;
 
-        const canvas = this._canvas;
-
-        const drawPlayer = (x: number, y: number) => {
-            ctx.fillStyle = staticDefs.playerColor;
-            ctx.fillRect(
-                x,
-                y,
-                staticDefs.playerSize.x,
-                staticDefs.playerSize.y
-            );
-        };
-
-        const drawBall = (x: number, y: number) => {
-            ctx.beginPath();
-            ctx.arc(x, y, staticDefs.ballSize, 0, Math.PI * 2, true);
-            ctx.closePath();
-            ctx.fillStyle = staticDefs.ballColor;
-            ctx.fill();
-        };
-
-        const player1X = 0;
-        const player2X = canvas.width - staticDefs.playerSize.x;
-
-        // const updateGame = async () => {
-        //     const serverGameState = await updateGameStateFromServer();
-
-        //     if (!serverGameState) {
-        //         this.renderError('Failed to fetch game state from server');
-        //         return;
-        //     }
-        //     ctx.clearRect(0, 0, canvas.width, canvas.height);
-        //     drawPlayer(player1X, serverGameState.players[0].position.y);
-        //     drawPlayer(player2X, serverGameState.players[1].position.y);
-        //     drawBall(serverGameState.ball.x, serverGameState.ball.y);
-
-        //     requestAnimationFrame(updateGame);
-        // };
-
-        // updateGame();
+        this._ctx.clearRect(0, 0, staticDefs.width, staticDefs.height);
+        this.drawPlayer(
+            this._ctx,
+            staticDefs.playerX.player1,
+            data.players[0].position.y
+        );
+        this.drawPlayer(
+            this._ctx,
+            staticDefs.playerX.player2,
+            data.players[1].position.y
+        );
+        this.drawBall(this._ctx, data.ball.x, data.ball.y);
     }
 
     renderError(message: string) {

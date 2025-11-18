@@ -44,13 +44,13 @@ export class APPWebSocket {
 
     constructor(
         endpoint: string,
-        onOpenCallback: () => void,
+        onOpenCallback: (data: any) => void,
         onMessageCallback: (data: any) => void
     ) {
         this._ws = new WebSocket(endpoint);
-        this.ws!.onopen = () => {
+        this.ws!.onopen = (data: any) => {
             console.log('✅ Connected websocket');
-            onOpenCallback();
+            onOpenCallback(data);
         };
         this.ws!.onmessage = (event: MessageEvent) => {
             const data: HistoryMessages = JSON.parse(event.data);
@@ -92,8 +92,6 @@ export class APPWebSocket {
     private onerror = (error: Event) =>
         console.error('WebSocket error:', error);
 }
-
-
 
 export class StreamChat extends CustomElementTemplate {
     protected _innerHTML = /*html*/ `
@@ -167,9 +165,8 @@ export class StreamChat extends CustomElementTemplate {
         ).ws;
 
         const appForm = this.shadowRoot?.querySelector('app-form') as AppForm;
-   
-        if (appForm) appForm.definitions = this._MessageForm;
 
+        if (appForm) appForm.definitions = this._MessageForm;
     }
 
     addMessage(
@@ -192,7 +189,7 @@ export class StreamChat extends CustomElementTemplate {
         this._messagesHTML.scrollTop = this._messagesHTML.scrollHeight;
     }
 
-    sendMessage(text :string): void {
+    sendMessage(text: string): void {
         // const text = input.value.trim();
         if (text && this._ws && this._ws.readyState === WebSocket.OPEN) {
             this._ws.send(
@@ -215,72 +212,68 @@ export class StreamChat extends CustomElementTemplate {
             {
                 label: 'Message',
                 for: 'message',
-                required:'true'
-            }
+                required: 'true',
+            },
         ],
         buttonLabel: 'Send',
         onSubmit: (data: Record<string, FormDataEntryValue>) => {
-            this.sendMessage(data.message as string)
+            this.sendMessage(data.message as string);
         },
-    }
+    };
 }
-
-
-
-
 
 // AHORA
 const dataHistory = {
-	type: 'history',
-	messages: [
-		{
-			alias: 'Alice',
-			text: 'Hello everyone!',
-			timestamp: '10:00 AM'
-		},
-		{
-			alias: 'Bob',
-			text: 'Hi Alice!',
-			timestamp: '10:01 AM'
-		}
-	]
+    type: 'history',
+    messages: [
+        {
+            alias: 'Alice',
+            text: 'Hello everyone!',
+            timestamp: '10:00 AM',
+        },
+        {
+            alias: 'Bob',
+            text: 'Hi Alice!',
+            timestamp: '10:01 AM',
+        },
+    ],
 };
 
 const dataJoined = {
-	type: 'alias_joined',
-	alias: 'Charlie'
+    type: 'alias_joined',
+    alias: 'Charlie',
 };
 
 const dataMessage = {
-	type: 'message',
-	alias: 'Charlie',
-	text: 'Good morning!',
-	timestamp: '10:02 AM'
+    type: 'message',
+    alias: 'Charlie',
+    text: 'Good morning!',
+    timestamp: '10:02 AM',
 };
 
 const dataLeft = {
-	type: 'alias_left',
-	alias: 'Bob'
+    type: 'alias_left',
+    alias: 'Bob',
 };
 
 // Unified
 const data = [
-	{
-		type: 'muted',
-		alias: 'Bob',
-		text: 'Bob joined the chat',
-		timestamp: '10:03 AM'
-	},
-	{
-		type: 'chat_message',
-		alias: 'Bob',
-		text: 'How is everyone?',
-		timestamp: '10:04 AM'
-	},
-	{
-		type: 'muted',
-		alias: 'Bob',
-		text: 'Bob left the chat',
-		timestamp: '10:05 AM'
-	},
+    {
+        type: 'muted',
+        alias: 'Bob',
+        text: 'Bob joined the chat',
+        timestamp: '10:03 AM',
+    },
+    {
+        type: 'chat_message',
+        alias: 'Bob',
+        text: 'How is everyone?',
+        timestamp: '10:04 AM',
+    },
+    {
+        type: 'muted',
+        alias: 'Bob',
+        text: 'Bob left the chat',
+        timestamp: '10:05 AM',
+    },
 ];
