@@ -1,7 +1,5 @@
 #frontend dev
-FROM node:20-slim
-RUN apt-get update && apt-get install -y python3 make g++ build-essential
-WORKDIR /usr/src/app
+FROM transcendence-base
 COPY . .
 RUN npm install
 EXPOSE 5173 8081
