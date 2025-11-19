@@ -5,6 +5,7 @@ RUN npm install
 EXPOSE 5173 8081
 ENV HOST=0.0.0.0
 
+#CMD ["sleep", "infinity"]
 CMD ["npm", "run", "dev"]
 
 # RUN npm install && npm run build
